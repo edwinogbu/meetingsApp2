@@ -66,7 +66,7 @@ const VerificationScreen = () => {
     <ScrollView contentContainerStyle={styles.container}>
       <LinearGradient colors={["#4CAF50", "#4CAF50"]} style={styles.header}>
         <Image
-          source={require("../assets/images/logo-ludoconsult.png")}
+          source={require("../assets/images/logo.jpeg")}
           style={styles.logo}
         />
       </LinearGradient>

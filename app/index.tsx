@@ -39,8 +39,10 @@ const onboardingScreen = () => {
           backgroundColor: "#6C00B1",
           image: (
             <GradientContainer>
-              <Image source={require("../assets/images/home-screen.png")} style={styles.logo} />
-              <Text style={styles.companyName}>Ludo Consult</Text>
+                <Image source={require("../assets/images/logo.jpeg")} style={styles.logo} />
+              <Text style={styles.companyName}>Born With Wealth</Text>
+              {/* <Image source={require("../assets/images/home-screen.png")} style={styles.logo} /> */}
+              {/* <Text style={styles.companyName}>Ludo Consult</Text> */}
               <Image source={require("../assets/images/vid2.jpg")} style={styles.image} />
             </GradientContainer>
           ),
@@ -51,8 +53,11 @@ const onboardingScreen = () => {
           backgroundColor: "#6D00B3",
           image: (
             <GradientContainer>
-              <Image source={require("../assets/images/home-screen.png")} style={styles.logo} />
-              <Text style={styles.companyName}>Ludo Consult</Text>
+                <Image source={require("../assets/images/logo.jpeg")} style={styles.logo} />
+              {/* <Image source={require("../assets/images/born.jpeg")} style={styles.logo} /> */}
+              <Text style={styles.companyName}>Born With Wealth</Text>
+              {/* <Image source={require("../assets/images/home-screen.png")} style={styles.logo} /> */}
+              {/* <Text style={styles.companyName}>Ludo Consult</Text> */}
               <Image source={require("../assets/images/vid.jpg")} style={styles.image} />
             </GradientContainer>
           ),
@@ -118,6 +123,8 @@ const styles = StyleSheet.create({
     textAlign: "center",
     paddingHorizontal: 30,
     marginTop: 10,
+    paddingBottom:30,
+    marginBottom:20,
   },
 });
 

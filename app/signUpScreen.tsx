@@ -272,7 +272,7 @@ const signUpScreen = () => {
               <Image source={require("../assets/images/logo-ludoconsult.png")} style={styles.logo} />
             </View> */}
           <View style={styles.imageContainer}>
-          <Image source={require("../assets/images/logo-ludoconsult.png")} style={styles.logo} />
+          <Image source={require("../assets/images/logo.jpeg")} style={styles.logo} />
 
             {/* <Image source={require("../assets/images/home-screen.png")} style={styles.logo} /> */}
             <Text style={styles.companyName}>Ludo Consult</Text>
@@ -301,7 +301,7 @@ const signUpScreen = () => {
             backgroundColor: "#f0f0f0",
             borderRadius: 8,
             paddingHorizontal: 10,  marginBottom: 15,   marginTop: 15,}}>
-                <TextInput style={styles.input} placeholder="Location" value={form.location} onChangeText={(text) => setForm({ ...form, location: text })} />
+                <TextInput style={styles.input} placeholder="Enter:  country, state and city?" value={form.location} onChangeText={(text) => setForm({ ...form, location: text })} />
         </View>
 
         <TouchableOpacity onPress={() => setShowDatePicker(true)} style={styles.datePicker}>

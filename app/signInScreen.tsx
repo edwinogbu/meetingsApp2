@@ -426,7 +426,7 @@ const signInScreen = () => {
       {/* Header with Curved Background */}
       <LinearGradient colors={["#6D00B3", "#6C00B1"]} style={styles.header}>
         <View style={{backgroundColor:"#FFFFFF", borderRadius:40,}}>
-          <Image source={require("../assets/images/logo-ludoconsult.png")} style={styles.logo} />
+          <Image source={require("../assets/images/logo.jpeg")} style={styles.logo} />
         </View>
         <Text style={styles.headerText}>Welcome Back to</Text>
         <Text style={styles.headerTextBold}>Ludo Consult Smart Meet</Text>

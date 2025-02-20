@@ -58,7 +58,7 @@ const Page = memo(() => {
     return (
         <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
             <View style={styles.header}>
-                <Image source={require('../../assets/images/logo-ludoconsult.png')} style={styles.logo} />
+                <Image source={require('../../assets/images/logo.jpeg')} style={styles.logo} />
                 <Text style={styles.appTitle}>Ludo StreamConnect</Text>
             </View>
 

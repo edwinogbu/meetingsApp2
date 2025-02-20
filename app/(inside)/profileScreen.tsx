@@ -33,7 +33,9 @@ const ProfileScreen = () => {
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <LinearGradient colors={["#8E00FF", "#0055A4"]} style={styles.header}>
-        <Image source={{ uri: formData.profileImage }} style={styles.profileImage} />
+        {/* <Image source={{ uri: formData.profileImage }} style={styles.profileImage} /> */}
+        <Image source={require("../../assets/images/logo.jpeg")} style={styles.profileImage} />
+
         <Text style={styles.userName}>
           {formData.first_name} {formData.last_name}
         </Text>
