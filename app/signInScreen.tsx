@@ -429,7 +429,7 @@ const signInScreen = () => {
           <Image source={require("../assets/images/logo.jpeg")} style={styles.logo} />
         </View>
         <Text style={styles.headerText}>Welcome Back to</Text>
-        <Text style={styles.headerTextBold}>Ludo Consult Smart Meet</Text>
+        <Text style={styles.headerTextBold}>BornwithWealth</Text>
       </LinearGradient>
 
       {/* Sign In Form */}
