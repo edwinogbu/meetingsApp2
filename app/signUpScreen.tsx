@@ -37,100 +37,6 @@ const signUpScreen = () => {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-//   const handleSignUp = async () => {
-//     if (!form.first_name || !form.last_name || !form.email || !form.phone_number || !form.password || !form.location || !form.date_of_birth) {
-//       setError("All fields are required!");
-//       return;
-//     }
-
-//     setLoading(true);
-//     setError("");
-
-//     try {
-//       const response = await onRegister?.(
-//         form.email,
-//         form.password,
-//         form.first_name,
-//         form.last_name,
-//         form.phone_number,
-//         form.location,
-//         form.date_of_birth.toISOString() // Convert Date to string
-//       );
-//       if (response?.error) {
-//         setError(response.msg || "Registration failed!");
-//       } else {
-//         // router.replace("/verificationScreen");
-//         router.replace({ pathname: "/verificationScreen", params: { email: form.email } });
-
-//       }
-//     } catch (err) {
-//       setError("Something went wrong. Try again!");
-//     }
-
-//     setLoading(false);
-//   };
-
-
-    // const handleSignUp = async () => {
-    //     if (!form.first_name || !form.last_name || !form.email || !form.phone_number || !form.password || !form.location || !form.date_of_birth) {
-    //     setError("All fields are required!");
-    //     console.error("Validation Error: Missing fields.");
-    //     return;
-    //     }
-    
-    //     setLoading(true);
-    //     setError("");
-    
-    //     try {
-    //     const response = await axios.post(
-    //         "http://52.14.158.219:5000/api/auth/register",
-    //         {
-    //         first_name: form.first_name,
-    //         last_name: form.last_name,
-    //         email: form.email,
-    //         phone_number: form.phone_number,
-    //         password: form.password,
-    //         location: form.location,
-    //         date_of_birth: form.date_of_birth.toISOString().split("T")[0], // Convert Date to YYYY-MM-DD
-    //         },
-    //         {
-    //         headers: {
-    //             "Content-Type": "application/json",
-    //             "Accept": "application/json", // Optional but recommended
-    //         },
-    //         }
-    //     );
-    
-    //     // Check if the request was successful
-    //     if (response.status !== 200) {
-    //         throw new Error(response.data.msg || "Registration failed!");
-    //     }
-    
-    //     // Save token and user data to SecureStore
-    //     await SecureStore.setItemAsync("userToken", response.data.token);
-    //     await SecureStore.setItemAsync("userData", JSON.stringify(response.data.user));
-    
-    //     console.log("User registered successfully:", response.data);
-    
-    //     // Navigate to verification screen
-    //     router.replace({ pathname: "/verificationScreen", params: { email: form.email } });
-    
-    //     } catch (err: any) {  // Explicitly typing 'err' as 'any'
-    //     if (axios.isAxiosError(err)) {
-    //         console.error("Axios Error:", err.response?.data || err.message);
-    //         setError(err.response?.data?.msg || "Registration failed due to a server error.");
-    //     } else if (err instanceof Error) {
-    //         console.error("Error:", err.message);
-    //         setError(err.message || "Something went wrong. Try again!");
-    //     } else {
-    //         console.error("Unknown Error:", err);
-    //         setError("An unexpected error occurred.");
-    //     }
-    //     }
-    
-    //     setLoading(false);
-    // };
-
     
     const handleSignUp = async () => {
       // ✅ Validate input fields
@@ -199,82 +105,17 @@ const signUpScreen = () => {
     };
     
 
-    // const handleSignUp = async () => {
-    //   if (
-    //     !form.first_name ||
-    //     !form.last_name ||
-    //     !form.email ||
-    //     !form.phone_number ||
-    //     !form.password ||
-    //     !form.location ||
-    //     !form.date_of_birth
-    //   ) {
-    //     setError("All fields are required!");
-    //     console.error("Validation Error: Missing fields.");
-    //     return;
-    //   }
-    
-    //   setLoading(true);
-    //   setError("");
-    
-    //   try {
-    //     const { data } = await axios.post(
-    //       "http://52.14.158.219:5000/api/auth/register",
-    //       {
-    //         first_name: form.first_name,
-    //         last_name: form.last_name,
-    //         email: form.email,
-    //         phone_number: form.phone_number,
-    //         password: form.password,
-    //         location: form.location,
-    //         date_of_birth: form.date_of_birth.toISOString().split("T")[0], // Convert Date to YYYY-MM-DD
-    //       },
-    //       {
-    //         headers: {
-    //           "Content-Type": "application/json",
-    //           Accept: "application/json",
-    //         },
-    //       }
-    //     );
-    
-    //     console.log("Server Response:", data);
-    
-    //     if (!data.success) {
-    //       setError(data.message || "Registration failed!");
-    //       return;
-    //     }
-    
-    //     console.log("User registered successfully:", data.user);
-    
-    //     // ✅ Navigate to verification screen
-    //     router.replace({ pathname: "/verificationScreen", params: { email: form.email } });
-    
-    //   } catch (err) {
-    //     console.error("Signup Error:", err);
-    
-    //     if (axios.isAxiosError(err)) {
-    //       setError(err.response?.data?.message || "Server error during registration.");
-    //     } else if (err instanceof Error) {
-    //       setError(err.message);
-    //     } else {
-    //       setError("An unexpected error occurred.");
-    //     }
-    //   } finally {
-    //     setLoading(false);
-    //   }
-    // };
     
   return (
     <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={{ flex: 1 }}>
+      
       <ScrollView contentContainerStyle={styles.container}>
         <LinearGradient colors={["#6D00B3", "#6C00B1"]} style={styles.header}>
-            {/* <View style={{backgroundColor:"#FFFFFF", borderRadius:40,}}>
-              <Image source={require("../assets/images/logo-ludoconsult.png")} style={styles.logo} />
-            </View> */}
+            
           <View style={styles.imageContainer}>
           <Image source={require("../assets/images/logo.jpeg")} style={styles.logo} />
 
-            {/* <Image source={require("../assets/images/home-screen.png")} style={styles.logo} /> */}
+
             <Text style={styles.companyName}>Ludo Consult</Text>
           </View>
           <Text style={styles.headerText}>Create Your Account</Text>
@@ -361,13 +202,7 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
         color: "#fff",
       },
-      // logo: {
-      //   width: 100,
-      //   height: 100,
-      //   resizeMode: "contain",
-      //   borderColor: "#4CAF50",
-      //   borderRadius: 25,
-      // },
+  
       imageContainer: {
         alignItems: "center",
         justifyContent: "center",
@@ -476,18 +311,3 @@ const styles = StyleSheet.create({
     
 export default signUpScreen;
 
-
-
-// import { View, Text, Button } from 'react-native';
-// import { useRouter } from 'expo-router';
-
-// export default function signUpScreen() {
-//   const router = useRouter();
-
-//   return (
-//     <View>
-//       <Text>Sign Up</Text>
-//       <Button title="Go to Sign In" onPress={() => router.push('/signInScreen')} />
-//     </View>
-//   );
-// }

@@ -64,7 +64,7 @@ const VerificationScreen = () => {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <LinearGradient colors={["#4CAF50", "#4CAF50"]} style={styles.header}>
+      <LinearGradient colors={["#6D00B3", "#6C00B1"]} style={styles.header}>
         <Image
           source={require("../assets/images/logo.jpeg")}
           style={styles.logo}
@@ -136,7 +136,7 @@ const styles = StyleSheet.create({
   verificationTitle: {
     fontSize: 22,
     fontWeight: "bold",
-    color: "#4CAF50",
+    color: "#6C00B1",
     marginBottom: 5,
   },
   subText: {
@@ -175,7 +175,7 @@ const styles = StyleSheet.create({
   verifyButton: {
     width: width * 0.85,
     height: 50,
-    backgroundColor: "#4CAF50",
+    backgroundColor: "#6D00B3",
     borderRadius: 10,
     justifyContent: "center",
     alignItems: "center",
@@ -190,18 +190,3 @@ const styles = StyleSheet.create({
 
 export default VerificationScreen;
 
-
-
-// import { View, Text, Button } from 'react-native';
-// import { useRouter } from 'expo-router';
-
-// export default function verificationScreen() {
-//   const router = useRouter();
-
-//   return (
-//     <View>
-//       <Text>Verify Your Account</Text>
-//       <Button title="Go to Home" onPress={() => router.push('/(inside)/home')} />
-//     </View>
-//   );
-// }
