@@ -29,7 +29,7 @@ const CustomButton: React.FC<CustomButtonProps> = ({ onPress, icon, text, primar
         style={[styles.button, primary ? styles.buttonPrimary : styles.buttonSecondary]} 
         activeOpacity={0.9}
     >
-        <Ionicons name={icon} size={26} color="#fff" />
+        <Ionicons name={icon} size={18} color="#fff" />
         <Text style={styles.buttonText}>{text}</Text>
     </TouchableOpacity>
 );
@@ -59,7 +59,7 @@ const Page = memo(() => {
         <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
             <View style={styles.header}>
                 <Image source={require('../../assets/images/logo.jpeg')} style={styles.logo} />
-                <Text style={styles.appTitle}>Ludo StreamConnect</Text>
+                <Text style={styles.appTitle}>BornwithWealth Connect</Text>
             </View>
 
             <View style={styles.headerButtons}>
@@ -69,7 +69,7 @@ const Page = memo(() => {
 
             <View style={styles.featureButtons}>
                 <CustomButton onPress={() => {}} icon="chatbubble-ellipses-outline" text="Chat Rooms" />
-                <CustomButton onPress={() => {}} icon="compass-outline" text="Explore Streams" />
+                <CustomButton onPress={() => {}} icon="compass-outline" text="Explore" />
                 <CustomButton onPress={() => {}} icon="calendar-outline" text="Schedule Live" />
             </View>
 
@@ -116,6 +116,9 @@ const styles = StyleSheet.create({
         height: 50,
         resizeMode: 'contain',
         marginRight: 10,
+        borderRadius:25,
+        borderColor:'#FFFFFF',
+        borderWidth:1,
     },
     appTitle: {
         fontSize: 24,
@@ -131,6 +134,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         marginTop: 15,
+
     },
     button: {
         flex: 1,
@@ -139,26 +143,31 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         marginHorizontal: 5,
         paddingVertical: 14,
-        borderRadius: 12,
+        paddingHorizontal:14,
+        borderRadius: 10,
         elevation: 5,
         shadowColor: '#fff',
         shadowOffset: { width: 0, height: 3 },
         shadowOpacity: 0.25,
         shadowRadius: 5,
+        borderColor:'#4CAF50',
+       borderWidth:1,
     },
     buttonPrimary: {
-        backgroundColor: '#8E00FF',
+        backgroundColor: '#6c00b2',
+        // backgroundColor: '#8E00FF',
         borderColor: '#FFFFFF',
         borderWidth: 1,
     },
     buttonSecondary: {
-        backgroundColor: '#0055A4',
+        backgroundColor: '#115f84',
+        // backgroundColor: '#0055A4',
     },
     buttonText: {
-        fontSize: 16,
-        fontWeight: '600',
+        fontSize: 12,
+        fontWeight: '400',
         color: '#fff',
-        marginLeft: 10,
+        marginLeft: 2,
     },
     divider: {
         flexDirection: 'row',

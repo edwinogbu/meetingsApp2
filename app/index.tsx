@@ -26,9 +26,9 @@ const onboardingScreen = () => {
           image: (
             <GradientContainer>
               <Image source={require("../assets/images/logo.jpeg")} style={styles.logo} />
-              {/* <Image source={require("../assets/images/born.jpeg")} style={styles.logo} /> */}
+              
               <Text style={styles.companyName}>Born With Wealth</Text>
-              {/* <Text style={styles.companyName}>Ludo Consult</Text> */}
+            
               <Image source={require("../assets/images/vid.jpg")} style={styles.image} />
             </GradientContainer>
           ),

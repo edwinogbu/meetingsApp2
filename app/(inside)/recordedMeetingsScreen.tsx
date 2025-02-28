@@ -36,14 +36,6 @@ export default function recordedMeetingsScreen() {
     <View style={styles.container}>
       <Text style={styles.heading}>Past Meetings & Conferences</Text>
       
-      {/* Video Player */}
-      {/* <View style={styles.videoContainer}>
-        <VideoView style={styles.video} player={player} allowsFullscreen allowsPictureInPicture />
-        <Button
-          title={isPlaying ? 'Pause' : 'Play'}
-          onPress={() => (isPlaying ? player.pause() : player.play())}
-        />
-      </View> */}
 
       {/* Search Bar */}
       <View style={styles.searchContainer}>
@@ -116,9 +108,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   recordingItem: {
-    // backgroundColor: '#F0F0F',
     backgroundColor: '#F0F8FF',
-    // backgroundColor: '#1A1A36',
     padding: 15,
     borderRadius: 10,
     marginBottom: 10,
@@ -157,32 +147,3 @@ const styles = StyleSheet.create({
   },
 });
 
-
-// import { View, Text, Button, StyleSheet } from 'react-native';
-// import { useRouter } from 'expo-router';
-
-// export default function recordedMeetingsScreen() {
-//   const router = useRouter();
-
-//   return (
-//     <View style={styles.container}>
-//       <Text style={styles.text}>Coming Soon!!!</Text>
-//       <Text style={styles.text}>📹 Recorded Meetings</Text>
-//       <Button title="Go to Home" onPress={() => router.push('/(inside)/index')} />
-//       <Button title="Go to Profile" onPress={() => router.push('/(inside)/profileScreen')} />
-//     </View>
-//   );
-// }
-
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//     justifyContent: 'center',
-//     alignItems: 'center',
-//     backgroundColor: '#fff',
-//   },
-//   text: {
-//     fontSize: 20,
-//     fontWeight: 'bold',
-//   },
-// });

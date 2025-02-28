@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
-import { useAuth } from "../context/AuthContext";
+// import { useAuth } from "../context/AuthContext";
 import { MaterialIcons } from "@expo/vector-icons";
 import * as SecureStore from 'expo-secure-store';
 import axios from 'axios';
@@ -20,12 +20,11 @@ const { width } = Dimensions.get("window");
 
 const SignInScreen = () => {
   const router = useRouter();
-
+  // const { onLogin } = useAuth(); // Get login function from AuthContext
   const [form, setForm] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-
 
 
   const handleLogin = async () => {
@@ -248,3 +247,4 @@ const styles = StyleSheet.create({
 });
 
 export default SignInScreen;
+

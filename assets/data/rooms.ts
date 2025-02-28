@@ -2,7 +2,7 @@ export const rooms = [
 	{
 		id: 10001,
 		name: 'Public Informations',
-		img: require('../images/home-screen.png')
+		img: require('../images/logo.jpeg')
 	},
 	{
 		id: 10002,
