@@ -39,7 +39,7 @@ const Page = memo(() => {
 
     const onStartMeeting = () => {
         const randomId = Math.floor(Math.random() * 1000000000).toString();
-        router.push(`/inside/room/${randomId}`);
+        router.push(`/(room)/${randomId}`);
     };
 
     const onJoinMeeting = () => {
@@ -48,7 +48,7 @@ const Page = memo(() => {
             'Enter your Call ID:',
             (id) => {
                 if (id && id.trim() !== '') {
-                    router.push(`/inside/room/${id}`);
+                    router.push(`/(room)/${id}`);
                 }
             },
             'plain-text'
@@ -81,7 +81,7 @@ const Page = memo(() => {
 
             <View style={styles.roomGrid}>
                 {rooms.map((room) => (
-                    <Link key={room.id} href={`/inside/room/${room.id}`} asChild>
+                    <Link key={room.id} href={`/(room)/${room.id}`} asChild>
                         <TouchableOpacity activeOpacity={0.85}>
                             <ImageBackground source={room.img} style={styles.image} imageStyle={styles.imageStyle}>
                                 <View style={styles.overlay}>

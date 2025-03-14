@@ -12,7 +12,7 @@ export { ErrorBoundary } from 'expo-router';
 
 // Set the initial route to the (inside) folder, which contains the main tabs.
 export const unstable_settings = {
-  initialRouteName: '(inside)',
+  initialRouteName: '(drawer)',
 };
 
 // Prevent splash screen from auto-hiding before asset loading is complete.
@@ -54,7 +54,10 @@ function RootLayoutNav() {
         <Stack.Screen name="verificationScreen" options={{ title: 'Verify Account' }} />
 
         {/* Main Tab Navigation (inside contains tabs) */}
-        <Stack.Screen name="(inside)" />
+        {/* <Stack.Screen name="(inside)" /> */}
+
+          {/* Drawer Navigation (Wrapping Only Tabs) */}
+        <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
       </Stack>
     </ThemeProvider>
   );
