@@ -166,7 +166,7 @@ const onboardingScreen = () => {
 
       if (response.ok && result.success) {
         Alert.alert("Success", "OTP sent successfully.");
-        router.push({ pathname: "/resetPassword", params: { email } });
+        router.push({ pathname: "resetPassword", params: { email } });
       } else {
         Alert.alert("Error", result.msg || "Failed to send OTP.");
       }
