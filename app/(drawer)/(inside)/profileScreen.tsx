@@ -59,7 +59,8 @@ const ProfileScreen = () => {
 
     try {
       const response = await fetch(
-        `http://52.14.158.219:5000/api/auth/users/update/${userData.id}`, // Use user ID instead of email
+        `http://172.20.80.1:5000/api/auth/users/update/${userData.id}`, // Use user ID instead of email
+        // `http://52.14.158.219:5000/api/auth/users/update/${userData.id}`, // Use user ID instead of email
         {
           method: "PUT",
           headers: {
@@ -93,7 +94,7 @@ const ProfileScreen = () => {
       <ScrollView contentContainerStyle={styles.container}>
         <LinearGradient colors={["#6D00B3", "#6C00B1"]} style={styles.header}>
           <View style={styles.imageContainer}>
-            <Image source={require("../../assets/images/logo.jpeg")} style={styles.logo} />
+            <Image source={require("../../../assets/images/logo.jpeg")} style={styles.logo} />
           </View>
           <Text style={styles.headerText}>Edit Your Profile</Text>
         </LinearGradient>

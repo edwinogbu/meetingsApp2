@@ -25,7 +25,8 @@ const SendOTPScreen = () => {
 
     try {
       const response = await fetch(
-        "http://52.14.158.219:5000/api/auth/send-otp",
+        "http://172.18.240.1:5000/api/auth/send-otp",
+        // "http://52.14.158.219:5000/api/auth/send-otp",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -36,7 +37,7 @@ const SendOTPScreen = () => {
 
       if (response.ok && result.success) {
         Alert.alert("Success", "OTP sent successfully.");
-        router.push({ pathname: "/resetPassword", params: { email } });
+        router.push({ pathname: "/resetPasswordScreen", params: { email } });
       } else {
         Alert.alert("Error", result.msg || "Failed to send OTP.");
       }

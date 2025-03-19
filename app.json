@@ -53,6 +53,7 @@
       "typedRoutes": true
     },
     "extra": {
+      "STREAM_ACCESS_KEY": "yyd329pv97zh",
       "router": {
         "origin": false
       }

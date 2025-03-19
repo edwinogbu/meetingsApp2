@@ -42,7 +42,8 @@ const VerificationScreen = () => {
     }
 
     try {
-      const response = await fetch("http://52.14.158.219:5000/api/auth/verify-email", {
+      const response = await fetch("http://172.18.240.1:5000/api/auth/verify-email", {
+      // const response = await fetch("http://52.14.158.219:5000/api/auth/verify-email", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

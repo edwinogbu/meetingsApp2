@@ -38,8 +38,81 @@ const signUpScreen = () => {
   const [showPassword, setShowPassword] = useState(false);
 
     
+    // const handleSignUp = async () => {
+    //   // ✅ Validate input fields
+    //   if (!form.first_name || !form.last_name || !form.email || !form.phone_number || !form.password || !form.location || !form.date_of_birth) {
+    //     setError("All fields are required!");
+    //     console.error("Validation Error: Missing fields.");
+    //     return;
+    //   }
+    
+    //   setLoading(true);
+    //   setError("");
+    
+    //   try {
+    //     // ✅ Send sign-up request
+    //     const { data } = await axios.post(
+    //       "http://172.18.240.1:5000/api/auth/register",
+    //       // "http://52.14.158.219:5000/api/auth/register",
+    //       {
+    //         first_name: form.first_name,
+    //         last_name: form.last_name,
+    //         email: form.email,
+    //         phone_number: form.phone_number,
+    //         password: form.password,
+    //         location: form.location,
+    //         date_of_birth: form.date_of_birth.toISOString().split("T")[0], // Convert Date to YYYY-MM-DD
+    //       },
+    //       {
+    //         headers: {
+    //           "Content-Type": "application/json",
+    //           Accept: "application/json",
+    //         },
+    //       }
+    //     );
+    
+    //     console.log("Server Response:", data);
+    
+    //     // ✅ Handle API response
+    //     if (!data.success) {
+    //       setError(data.message || "Registration failed!");
+    //       return;
+    //     }
+    
+    //     // ✅ Securely store user data & token
+    //     await SecureStore.setItemAsync("userToken", String(data.token));
+    //     await SecureStore.setItemAsync("userData", JSON.stringify(data.user));
+    
+    //     console.log("User registered and stored successfully:", data.user);
+    
+    //     // ✅ Navigate to verification screen
+    //     router.replace({ pathname: "/verificationScreen", params: { email: form.email } });
+    
+    //   } catch (err) {
+    //     // ✅ Handle different types of errors properly
+    //     if (axios.isAxiosError(err)) {
+    //       console.error("Axios Error:", err.response?.data || err.message);
+    //       setError(err.response?.data?.message || "Registration failed due to a server error.");
+    //     } else if (err instanceof Error) {
+    //       console.error("Error:", err.message);
+    //       setError(err.message || "Something went wrong. Try again!");
+    //     } else {
+    //       console.error("Unknown Error:", err);
+    //       setError("An unexpected error occurred.");
+    //     }
+    //   } finally {
+    //     setLoading(false);
+    //   }
+    // };
+    
+
     const handleSignUp = async () => {
-      // ✅ Validate input fields
+      if (!onRegister) {
+        console.error("Auth context not initialized");
+        setError("Authentication service is unavailable.");
+        return;
+      }
+    
       if (!form.first_name || !form.last_name || !form.email || !form.phone_number || !form.password || !form.location || !form.date_of_birth) {
         setError("All fields are required!");
         console.error("Validation Error: Missing fields.");
@@ -50,61 +123,28 @@ const signUpScreen = () => {
       setError("");
     
       try {
-        // ✅ Send sign-up request
-        const { data } = await axios.post(
-          "http://52.14.158.219:5000/api/auth/register",
-          {
-            first_name: form.first_name,
-            last_name: form.last_name,
-            email: form.email,
-            phone_number: form.phone_number,
-            password: form.password,
-            location: form.location,
-            date_of_birth: form.date_of_birth.toISOString().split("T")[0], // Convert Date to YYYY-MM-DD
-          },
-          {
-            headers: {
-              "Content-Type": "application/json",
-              Accept: "application/json",
-            },
-          }
+        // ✅ Convert date_of_birth to YYYY-MM-DD format
+        const formattedDOB = form.date_of_birth.toISOString().split("T")[0];
+    
+        await onRegister?.(
+          form.email,
+          form.password,
+          form.first_name,
+          form.last_name,
+          form.phone_number,
+          form.location,
+          formattedDOB // Pass formatted date
         );
     
-        console.log("Server Response:", data);
-    
-        // ✅ Handle API response
-        if (!data.success) {
-          setError(data.message || "Registration failed!");
-          return;
-        }
-    
-        // ✅ Securely store user data & token
-        await SecureStore.setItemAsync("userToken", String(data.token));
-        await SecureStore.setItemAsync("userData", JSON.stringify(data.user));
-    
-        console.log("User registered and stored successfully:", data.user);
-    
-        // ✅ Navigate to verification screen
-        router.replace({ pathname: "/verificationScreen", params: { email: form.email } });
-    
+        router.replace("/(drawer)/(inside)/");
       } catch (err) {
-        // ✅ Handle different types of errors properly
-        if (axios.isAxiosError(err)) {
-          console.error("Axios Error:", err.response?.data || err.message);
-          setError(err.response?.data?.message || "Registration failed due to a server error.");
-        } else if (err instanceof Error) {
-          console.error("Error:", err.message);
-          setError(err.message || "Something went wrong. Try again!");
-        } else {
-          console.error("Unknown Error:", err);
-          setError("An unexpected error occurred.");
-        }
+        console.error("Registration error:", err);
+        setError(err.message || "Registration failed.");
       } finally {
         setLoading(false);
       }
     };
     
-
     
   return (
     <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={{ flex: 1 }}>

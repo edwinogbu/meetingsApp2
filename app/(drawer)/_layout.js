@@ -1,3 +1,5 @@
+
+
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
 import React, { useEffect } from "react";
@@ -6,7 +8,7 @@ import { DrawerContentScrollView, DrawerItem } from "@react-navigation/drawer";
 import { Feather, AntDesign, Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { router, usePathname } from "expo-router";
 
-const CustomDrawerContent = (props: any) => {
+const CustomDrawerContent = (props) => {
   const pathname = usePathname();
 
   useEffect(() => {
@@ -35,7 +37,7 @@ const CustomDrawerContent = (props: any) => {
             label="Home"
             labelStyle={pathname === "/home" ? styles.activeNavItemLabel : styles.inactiveNavItemLabel}
             style={pathname === "/home" ? styles.activeNavItem : styles.inactiveNavItem}
-            onPress={() => router.push("/(drawer)/(inside)/home")}
+            onPress={() => router.push("/(inside)/index")}
           />
         </View>
 
@@ -95,7 +97,8 @@ export default function Layout() {
 
 const styles = StyleSheet.create({
   drawerContainer: {
-    backgroundColor: "#1A1A36",
+    backgroundColor: "#6D00B3",
+    // backgroundColor: "#1A1A36",
     flex: 1,
     paddingVertical: 10,
   },

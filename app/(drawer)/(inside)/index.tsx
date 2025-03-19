@@ -9,7 +9,7 @@ import {
     Dimensions,
     Alert
 } from 'react-native';
-import { rooms } from '../../assets/data/rooms';
+import { rooms } from '../../../assets/data/rooms';
 import { Link, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { memo } from 'react';
@@ -39,7 +39,7 @@ const Page = memo(() => {
 
     const onStartMeeting = () => {
         const randomId = Math.floor(Math.random() * 1000000000).toString();
-        router.push(`/(room)/${randomId}`);
+        router.push(`/../../(room)/${randomId}`);
     };
 
     const onJoinMeeting = () => {
@@ -48,7 +48,7 @@ const Page = memo(() => {
             'Enter your Call ID:',
             (id) => {
                 if (id && id.trim() !== '') {
-                    router.push(`/(room)/${id}`);
+                    router.push(`/(drawer)/(inside)/(room)/${id}`);
                 }
             },
             'plain-text'
@@ -58,7 +58,7 @@ const Page = memo(() => {
     return (
         <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
             <View style={styles.header}>
-                <Image source={require('../../assets/images/logo.jpeg')} style={styles.logo} />
+                <Image source={require('../../../assets/images/logo.jpeg')} style={styles.logo} />
                 <Text style={styles.appTitle}>BornwithWealth Connect</Text>
             </View>
 
@@ -81,7 +81,7 @@ const Page = memo(() => {
 
             <View style={styles.roomGrid}>
                 {rooms.map((room) => (
-                    <Link key={room.id} href={`/(room)/${room.id}`} asChild>
+                    <Link key={room.id} href={`../../(room)/${room.id}`} asChild>
                         <TouchableOpacity activeOpacity={0.85}>
                             <ImageBackground source={room.img} style={styles.image} imageStyle={styles.imageStyle}>
                                 <View style={styles.overlay}>
