@@ -1,61 +1,69 @@
-import { View, Text } from 'react-native'
-import React from 'react'
+// import { View, Text } from 'react-native';
+// import { useLocalSearchParams } from 'expo-router';
+// import React from 'react';
 
-export default function page() {
+// export default function RoomPage() {
+//     const { id } = useLocalSearchParams<{ id: string }>();
+
+//     return (
+//         <View>
+//             <Text>Room Page: {id}</Text>
+//         </View>
+//     );
+// }
+
+import { View, StyleSheet, Dimensions } from 'react-native'; 
+import React, { useEffect, useState } from 'react';
+import { useLocalSearchParams } from 'expo-router';
+
+import Spinner from 'react-native-loading-spinner-overlay';
+import {
+  Call,
+  CallContent,
+  StreamCall,
+  useStreamVideoClient
+} from '@stream-io/video-react-native-sdk';
+
+const WIDTH = Dimensions.get('window').width;
+const HEIGHT = Dimensions.get('window').height;
+
+const Page = () => {
+  const [call, setCall] = useState<Call | null>(null);
+  const client = useStreamVideoClient();
+  const { id } = useLocalSearchParams<{ id: string }>();
+
+  console.log("Client:", client);
+  console.log("Call ID:", id);
+
+  useEffect(() => {
+    if (!client || !id || call) return;
+
+    const joinCall = async () => {
+      try {
+        const callInstance = client.call('default', id);
+        await callInstance.join({ create: true });
+        setCall(callInstance);
+      } catch (error) {
+        console.error("Failed to join call:", error);
+      }
+    };
+
+    joinCall();
+  }, [client, id]);
+
+  if (!call) return <Spinner visible={true} />; // Show spinner if call is not yet joined
+
   return (
-	<View>
-	  <Text>Room page</Text>
-	</View>
-  )
-}
+    <View style={{ flex: 1 }}>
+      <StreamCall call={call}>
+        <CallContent />
+      </StreamCall>
+    </View>
+  );
+};
 
-// import { View, StyleSheet, Dimensions, TouchableOpacity, Share, Text } from 'react-native'; 
-// import React, { useEffect, useState, useCallback } from 'react';
-// import { useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
+export default Page;
 
-// import Spinner from 'react-native-loading-spinner-overlay';
-// import {
-// 	Call,
-// 	CallContent,
-// 	StreamCall,
-// 	StreamVideoEvent,
-// 	useStreamVideoClient
-// } from '@stream-io/video-react-native-sdk';
-// import Toast from 'react-native-toast-message';
-
-// import { Ionicons } from '@expo/vector-icons';
-
-// const WIDTH = Dimensions.get('window').width;
-// const HEIGHT = Dimensions.get('window').height;
-// const Page = () => {
-// 	const [call, setCall] = useState<Call | null>(null);
-// 	const client = useStreamVideoClient();
-// 	const { id } = useLocalSearchParams<{ id: string }>();
-  
-// 	useEffect(() => {
-// 	  if (!client || call) return;
-  
-// 	  const joinCall = async () => {
-// 		const call = client.call('default', id);
-// 		await call.join({ create: true });
-// 		setCall(call); // ✅ Added missing state update
-// 	  };
-  
-// 	  joinCall();
-// 	}, [client]);
-  
-// 	if (!call) return null;
-  
-// 	return (
-// 	  <View style={{ flex: 1 }}>
-// 		<Spinner visible={!call} />
-// 		<StreamCall call={call}>  {/* ✅ Added missing call rendering */}
-// 		  <CallContent />
-// 		</StreamCall>
-// 	  </View>
-// 	);
-//   };
-  
 
 // import { View, StyleSheet, Dimensions, TouchableOpacity, Share, Text } from 'react-native'; 
 // import React, { useEffect, useState, useCallback } from 'react';

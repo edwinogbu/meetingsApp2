@@ -1,3 +1,269 @@
+// import FontAwesome from "@expo/vector-icons/FontAwesome";
+// import { DarkTheme, DefaultTheme, ThemeProvider } from "@react-navigation/native";
+// import { Stack } from "expo-router";
+// import * as SplashScreen from "expo-splash-screen";
+// import { useEffect, useState } from "react";
+// import "react-native-reanimated";
+// import { useColorScheme } from "@/components/useColorScheme";
+// import { StreamVideo, StreamVideoClient } from "@stream-io/video-react-native-sdk";
+// import { AuthProvider, useAuth } from "../context/AuthContext";
+// import { GestureHandlerRootView } from "react-native-gesture-handler";
+// import { OverlayProvider } from "stream-chat-expo";
+// import Toast from "react-native-toast-message";
+// import { useRouter, useSegments } from "expo-router";
+// import Constants from "expo-constants";
+// import * as SecureStore from "expo-secure-store";
+// import jwtDecode from "jwt-decode";
+
+// export { ErrorBoundary } from "expo-router";
+
+// export const unstable_settings = {
+//   initialRouteName: "index",
+// };
+
+// const STREAM_KEY = Constants.expoConfig?.extra?.STREAM_ACCESS_KEY;
+
+// if (!STREAM_KEY) {
+//   console.warn("Warning: STREAM_KEY is missing from app.json. Video features may not work.");
+// }
+
+// SplashScreen.preventAutoHideAsync();
+
+// export default function RootLayout() {
+//   return (
+//     <AuthProvider>
+//       <GestureHandlerRootView style={{ flex: 1 }}>
+//         <InitialLayout />
+//       </GestureHandlerRootView>
+//     </AuthProvider>
+//   );
+// }
+
+// function InitialLayout() {
+//   const { authState, initialized } = useAuth();
+//   const [client, setClient] = useState(null);
+//   const [secureAuth, setSecureAuth] = useState(null);
+//   const segments = useSegments();
+//   const router = useRouter();
+
+//   // Function to verify token
+//   const isTokenValid = (token) => {
+//     try {
+//       const decoded = jwtDecode(token);
+//       return decoded.exp * 1000 > Date.now(); // Check if token is expired
+//     } catch (error) {
+//       return false;
+//     }
+//   };
+
+//   // Fetch secure authentication data from SecureStore
+//   useEffect(() => {
+//     async function fetchSecureAuth() {
+//       try {
+//         const token = await SecureStore.getItemAsync("userToken");
+//         const userData = await SecureStore.getItemAsync("userData");
+
+//         if (token && userData) {
+//           const parsedUser = JSON.parse(userData);
+//           if (isTokenValid(token) && parsedUser?.id) {
+//             setSecureAuth({ token, user: parsedUser });
+//           } else {
+//             await SecureStore.deleteItemAsync("userToken");
+//             await SecureStore.deleteItemAsync("userData");
+//             setSecureAuth(null);
+//           }
+//         }
+//       } catch (error) {
+//         console.error("Error retrieving authentication data:", error);
+//       }
+//     }
+
+//     fetchSecureAuth();
+//   }, []);
+
+//   // Protect drawer routes from unauthorized users
+//   useEffect(() => {
+//     if (!initialized && !secureAuth) return;
+
+//     const isInDrawer = segments[0] === "(drawer)";
+//     const isAuthenticated = authState?.authenticated || !!secureAuth;
+
+//     if (isAuthenticated) {
+//       if (!isInDrawer) router.replace("/(drawer)/(inside)");
+//     } else {
+//       if (client) {
+//         client.disconnectUser();
+//         setClient(null);
+//       }
+//       router.replace("/");
+//     }
+//   }, [initialized, authState, secureAuth]);
+
+//   // Initialize StreamVideoClient
+//   useEffect(() => {
+//     let clientInstance = null;
+//     const token = authState?.token || secureAuth?.token;
+//     const user = authState?.user || secureAuth?.user;
+
+//     if (token && user?.id && STREAM_KEY) {
+//       try {
+//         clientInstance = new StreamVideoClient({
+//           apiKey: STREAM_KEY,
+//           user: { id: String(user.id) }, // Ensure user ID is a string
+//           token,
+//         });
+//         setClient(clientInstance);
+//       } catch (e) {
+//         console.error("Error creating StreamVideoClient:", e);
+//       }
+//     }
+
+//     return () => {
+//       if (clientInstance) {
+//         clientInstance.disconnectUser();
+//         setClient(null);
+//       }
+//     };
+//   }, [authState, secureAuth]);
+
+//   return (
+//     <ThemeProvider value={useColorScheme() === "dark" ? DarkTheme : DefaultTheme}>
+//       {!secureAuth ? (
+//         <Stack screenOptions={{ headerShown: false }}>
+//           <Stack.Screen name="index" options={{ title: "Welcome" }} />
+//           <Stack.Screen name="signInScreen" options={{ title: "Sign In" }} />
+//           <Stack.Screen name="signUpScreen" options={{ title: "Sign Up" }} />
+//           <Stack.Screen name="verificationScreen" options={{ title: "Verify Account" }} />
+//         </Stack>
+//       ) : (
+//         <StreamVideo client={client}>
+//           <OverlayProvider>
+//             <Stack screenOptions={{ headerShown: false }}>
+//               <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
+//             </Stack>
+//             <Toast />
+//           </OverlayProvider>
+//         </StreamVideo>
+//       )}
+//     </ThemeProvider>
+//   );
+// }
+
+
+// import FontAwesome from "@expo/vector-icons/FontAwesome";
+// import { DarkTheme, DefaultTheme, ThemeProvider } from "@react-navigation/native";
+// import { useFonts } from "expo-font";
+// import { Stack } from "expo-router";
+// import * as SplashScreen from "expo-splash-screen";
+// import { useEffect, useState } from "react";
+// import "react-native-reanimated";
+// import { useColorScheme } from "@/components/useColorScheme";
+// import { StreamVideo, StreamVideoClient } from "@stream-io/video-react-native-sdk";
+// import { AuthProvider, useAuth } from "../context/AuthContext";
+// import { GestureHandlerRootView } from "react-native-gesture-handler";
+// import { OverlayProvider } from "stream-chat-expo";
+// import Toast from "react-native-toast-message";
+// import { useRouter, useSegments } from "expo-router";
+// import Constants from "expo-constants"; // ✅ Import expo-constants
+
+// export { ErrorBoundary } from "expo-router";
+
+// export const unstable_settings = {
+//   initialRouteName: "(drawer)",
+// };
+
+// // ✅ Get STREAM_ACCESS_KEY from app.json
+// const STREAM_KEY = Constants.expoConfig?.extra?.STREAM_ACCESS_KEY;
+
+// if (!STREAM_KEY) {
+//   console.warn("Warning: STREAM_KEY is missing from app.json. Video features may not work.");
+// }
+
+// // ✅ Prevent splash screen auto-hide
+// SplashScreen.preventAutoHideAsync();
+
+// export default function RootLayout() {
+//   return (
+//     <AuthProvider>
+//       <GestureHandlerRootView style={{ flex: 1 }}>
+//         <InitialLayout />
+//       </GestureHandlerRootView>
+//     </AuthProvider>
+//   );
+// }
+
+// function InitialLayout() {
+//   const { authState, initialized } = useAuth();
+//   const [client, setClient] = useState(null);
+//   const segments = useSegments();
+//   const router = useRouter();
+
+//   useEffect(() => {
+//     if (!initialized) return;
+
+//     const inAuthGroup = segments[0] === "(drawer)";
+
+//     if (authState?.authenticated && !inAuthGroup) {
+//       router.replace("/(drawer)/(inside)");
+//     } else if (!authState?.authenticated) {
+//       client?.disconnectUser();
+//       setClient(null);
+//       router.replace("/");
+//     }
+//   }, [initialized, authState]);
+
+//   useEffect(() => {
+//     let clientInstance = null;
+
+//     if (authState?.authenticated && authState.token && STREAM_KEY) {
+//       const user = { id: authState.user_id || "" };
+
+//       try {
+//         clientInstance = new StreamVideoClient({
+//           apiKey: STREAM_KEY,
+//           user,
+//           token: authState.token,
+//         });
+//         setClient(clientInstance);
+//       } catch (e) {
+//         console.error("Error creating StreamVideoClient:", e);
+//       }
+//     }
+
+//     return () => {
+//       if (clientInstance) {
+//         clientInstance.disconnectUser();
+//         setClient(null);
+//       }
+//     };
+//   }, [authState]);
+
+//   return (
+//     <ThemeProvider value={useColorScheme() === "dark" ? DarkTheme : DefaultTheme}>
+//       {!client ? (
+//         <Stack screenOptions={{ headerShown: false }}>
+//           <Stack.Screen name="index" options={{ title: "Welcome" }} />
+//           <Stack.Screen name="signInScreen" options={{ title: "Sign In" }} />
+//           <Stack.Screen name="signUpScreen" options={{ title: "Sign Up" }} />
+//           <Stack.Screen name="verificationScreen" options={{ title: "Verify Account" }} />
+//         </Stack>
+//       ) : (
+//         <StreamVideo client={client}>
+//           <OverlayProvider>
+//             <Stack screenOptions={{ headerShown: false }}>
+//               <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
+//               {/* <Stack.Screen name="(drawer)/(inside)" options={{ headerShown: false }} /> */}
+//               {/* <Stack.Screen name="(room)/[id]" options={{ title: "Room" }} /> */}
+//             </Stack>
+//             <Toast />
+//           </OverlayProvider>
+//         </StreamVideo>
+//       )}
+//     </ThemeProvider>
+//   );
+// }
+
+
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { DarkTheme, DefaultTheme, ThemeProvider } from "@react-navigation/native";
 import { useFonts } from "expo-font";
@@ -12,7 +278,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { OverlayProvider } from "stream-chat-expo";
 import Toast from "react-native-toast-message";
 import { useRouter, useSegments } from "expo-router";
-import Constants from "expo-constants"; // ✅ Import expo-constants
+
 
 export { ErrorBoundary } from "expo-router";
 
@@ -20,14 +286,12 @@ export const unstable_settings = {
   initialRouteName: "(drawer)",
 };
 
-// ✅ Get STREAM_ACCESS_KEY from app.json
-const STREAM_KEY = Constants.expoConfig?.extra?.STREAM_ACCESS_KEY;
+const STREAM_KEY = process.env.STREAM_ACCESS_KEY;
 
 if (!STREAM_KEY) {
-  console.warn("Warning: STREAM_KEY is missing from app.json. Video features may not work.");
+  console.warn("Warning: STREAM_KEY is missing from .env. Video features may not work.");
 }
 
-// ✅ Prevent splash screen auto-hide
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
@@ -50,10 +314,11 @@ function InitialLayout() {
     if (!initialized) return;
 
     const inAuthGroup = segments[0] === "(drawer)";
+    const isAuthenticated = authState?.authenticated && authState?.userToken;
 
-    if (authState?.authenticated && !inAuthGroup) {
+    if (isAuthenticated && !inAuthGroup) {
       router.replace("/(drawer)/(inside)");
-    } else if (!authState?.authenticated) {
+    } else if (!isAuthenticated) {
       client?.disconnectUser();
       setClient(null);
       router.replace("/");
@@ -62,15 +327,15 @@ function InitialLayout() {
 
   useEffect(() => {
     let clientInstance = null;
+    const isAuthenticated = authState?.authenticated && authState?.userToken;
 
-    if (authState?.authenticated && authState.token && STREAM_KEY) {
+    if (isAuthenticated && STREAM_KEY) {
       const user = { id: authState.user_id || "" };
-
       try {
         clientInstance = new StreamVideoClient({
           apiKey: STREAM_KEY,
           user,
-          token: authState.token,
+          token: authState.userToken,
         });
         setClient(clientInstance);
       } catch (e) {
@@ -100,8 +365,8 @@ function InitialLayout() {
           <OverlayProvider>
             <Stack screenOptions={{ headerShown: false }}>
               <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
-              {/* <Stack.Screen name="(drawer)/(inside)" options={{ headerShown: false }} /> */}
-              {/* <Stack.Screen name="(room)/[id]" options={{ title: "Room" }} /> */}
+              <Stack.Screen name="(drawer)/(inside)" options={{ headerShown: false }} />
+              <Stack.Screen name="(room)/[id]" options={{ title: "Room" }} />
             </Stack>
             <Toast />
           </OverlayProvider>
@@ -110,7 +375,6 @@ function InitialLayout() {
     </ThemeProvider>
   );
 }
-
 
 // import FontAwesome from "@expo/vector-icons/FontAwesome";
 // import { DarkTheme, DefaultTheme, ThemeProvider } from "@react-navigation/native";

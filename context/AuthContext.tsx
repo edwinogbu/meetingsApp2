@@ -53,14 +53,40 @@ export const AuthProvider = ({ children }: any) => {
         loadAuthState();
     }, []);
 
+    // const onRegister = async (...args) => {
+    //     console.log("Registering user with args:", args);
+    //     try {
+    //         const { data } = await axios.post(`http://172.20.80.1:5000/api/auth/register`, { ...args });
+    //         console.log("Registration successful:", data);
+    //         await SecureStore.setItemAsync(USER_TOKEN_KEY, String(data.userToken));
+    //         await SecureStore.setItemAsync(USER_DATA_KEY, JSON.stringify(data.userData));
+    //         setAuthState({ userToken: data.userToken, authenticated: true, userData: data.userData });
+    //         return data;
+    //     } catch (error) {
+    //         console.error("Registration error:", error);
+    //         throw error;
+    //     }
+    // };
+
     const onRegister = async (...args) => {
         console.log("Registering user with args:", args);
         try {
-            const { data } = await axios.post(`${API_URL}/register`, { ...args });
+            const { data } = await axios.post(
+                `http://172.20.80.1:5000/api/auth/register`,
+                { ...args },
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authState?.userToken || ''}`
+                    }
+                }
+            );
+    
             console.log("Registration successful:", data);
             await SecureStore.setItemAsync(USER_TOKEN_KEY, String(data.userToken));
             await SecureStore.setItemAsync(USER_DATA_KEY, JSON.stringify(data.userData));
             setAuthState({ userToken: data.userToken, authenticated: true, userData: data.userData });
+    
             return data;
         } catch (error) {
             console.error("Registration error:", error);
@@ -68,30 +94,116 @@ export const AuthProvider = ({ children }: any) => {
         }
     };
 
+
+    // const onLogin = async (email, password) => {
+    //     console.log("Logging in user:", email);
+    //     try {
+    //         const { data } = await axios.post(
+    //             `${API_URL}login`,
+    //             { email, password },
+    //             {
+    //                 headers: {
+    //                     "Content-Type": "application/json",
+    //                     Accept: "application/json",
+    //                 },
+    //             }
+    //         );
+    
+    //         if (!data.userToken || !data.userData) {
+    //             throw new Error("Invalid login response, missing token or user data");
+    //         }
+    
+    //         await SecureStore.setItemAsync(USER_TOKEN_KEY, String(data.userToken));
+    //         await SecureStore.setItemAsync(USER_DATA_KEY, JSON.stringify(data.userData));
+    
+    //         setAuthState({ userToken: data.userToken, authenticated: true, userData: data.userData });
+    
+    //         console.log("Login successful:", data);
+    //         return data;
+    //     } catch (error) {
+    //         console.error("Login error:", error.response?.data?.message || error.message);
+    //         throw error;
+    //     }
+    // };
+    
+    
+    // const onLogin = async (email, password) => {
+    //     console.log("Logging in user:", email);
+    //     try {
+    //         const { data } = await axios.post(`${API_URL}/login`, { email, password });
+    //         console.log("Login successful:", data);
+
+    //         await SecureStore.setItemAsync(USER_TOKEN_KEY, data.userToken ? String(data.userToken) : "");
+    //         await SecureStore.setItemAsync(USER_DATA_KEY, JSON.stringify(data.userData || {}));
+
+    //         setAuthState({ userToken: data.userToken, authenticated: true, userData: data.userData });
+    //         return data;
+    //     } catch (error) {
+    //         console.error("Login error:", error);
+    //         throw error;
+    //     }
+    // };
+
+    useEffect(() => {
+        const loadStoredAuth = async () => {
+            const token = await SecureStore.getItemAsync(USER_TOKEN_KEY);
+            const userData = await SecureStore.getItemAsync(USER_DATA_KEY);
+
+            if (token && userData) {
+                setAuthState({
+                    userToken: token,
+                    authenticated: true,
+                    userData: JSON.parse(userData),
+                });
+            }
+        };
+
+        loadStoredAuth();
+    }, []);
+
     const onLogin = async (email, password) => {
         console.log("Logging in user:", email);
         try {
-            const { data } = await axios.post(`${API_URL}/login`, { email, password });
-            console.log("Login successful:", data);
+            const { data } = await axios.post(
+                `${API_URL}login`,
+                { email, password },
+                {
+                    headers: {
+                        "Content-Type": "application/json",
+                        Accept: "application/json",
+                    },
+                }
+            );
 
-            await SecureStore.setItemAsync(USER_TOKEN_KEY, data.userToken ? String(data.userToken) : "");
-            await SecureStore.setItemAsync(USER_DATA_KEY, JSON.stringify(data.userData || {}));
+            if (!data.userToken || !data.userData) {
+                throw new Error("Invalid login response, missing token or user data");
+            }
+
+            await SecureStore.setItemAsync(USER_TOKEN_KEY, String(data.userToken));
+            await SecureStore.setItemAsync(USER_DATA_KEY, JSON.stringify(data.userData));
 
             setAuthState({ userToken: data.userToken, authenticated: true, userData: data.userData });
+
+            console.log("Login successful:", data);
             return data;
         } catch (error) {
-            console.error("Login error:", error);
+            console.error("Login error:", error.response?.data?.message || error.message);
             throw error;
         }
     };
 
     const onLogout = async () => {
         console.log("Logging out user...");
-        await SecureStore.deleteItemAsync(USER_TOKEN_KEY);
-        await SecureStore.deleteItemAsync(USER_DATA_KEY);
-        setAuthState({ userToken: null, authenticated: false, userData: null });
-        console.log("User logged out successfully.");
+        try {
+            await SecureStore.deleteItemAsync(USER_TOKEN_KEY);
+            await SecureStore.deleteItemAsync(USER_DATA_KEY);
+            setAuthState({ userToken: null, authenticated: false, userData: null });
+            console.log("Logout successful");
+        } catch (error) {
+            console.error("Logout error:", error.message);
+        }
     };
+
 
     const onVerifyEmail = async (email, otp) => {
         console.log("Verifying email:", email);

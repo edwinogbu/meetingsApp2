@@ -28,89 +28,89 @@ const SignInScreen = () => {
 
 
 
-const handleLogin = async () => {
-  if (!onLogin) {
-    console.error("Auth context not initialized");
-    setError("Authentication service is unavailable.");
-    return;
-  }
+// const handleLogin = async () => {
+//   if (!onLogin) {
+//     console.error("Auth context not initialized");
+//     setError("Authentication service is unavailable.");
+//     return;
+//   }
 
-  if (!form.email || !form.password) {
-    setError("All fields are required!");
-    return;
-  }
+//   if (!form.email || !form.password) {
+//     setError("All fields are required!");
+//     return;
+//   }
 
-  setLoading(true);
-  setError("");
+//   setLoading(true);
+//   setError("");
 
-  try {
-    await onLogin?.(form.email, form.password);  // Added optional chaining
-    router.replace("/(drawer)/(inside)/");
-  } catch (err) {
-    console.error("Login error:", err);
-    setError(err.message || "Login failed.");
-  } finally {
-    setLoading(false);
-  }
-};
-
-
-  // const handleLogin = async () => {
-  //   if (!form.email || !form.password) {
-  //     setError("All fields are required!");
-  //     console.error("Validation Error: Missing fields.");
-  //     return;
-  //   }
-
-  //   setLoading(true);
-  //   setError("");
-
-  //   try {
-  //     const { data } = await axios.post(
-  //       "http://172.20.80.1:5000/api/auth/login",
-  //       // "http://172.18.240.1:5000/api/auth/login",
-  //       // "http://52.14.158.219:5000/api/auth/login",
-  //       { email: form.email, password: form.password },
-  //       {
-  //         headers: {
-  //           "Content-Type": "application/json",
-  //           Accept: "application/json",
-  //         },
-  //       }
-  //     );
-
-  //     console.log("Server Response:", data);
-
-  //     if (!data.success) {
-  //       setError(data.message || "Login failed!");
-  //       return;
-  //     }
-
-  //     await SecureStore.setItemAsync("userToken", String(data.token));
-  //     await SecureStore.setItemAsync("userData", JSON.stringify(data.user));
-
-  //     console.log("User logged in successfully:", data.user);
-  //     // router.replace("/(drawer)/(inside)/index");
-
-  //     console.log("Redirecting to:", "/(drawer)/(inside)/index");
-  //     router.replace("/(drawer)/(inside)/");
+//   try {
+//     await onLogin?.(form.email, form.password);  // Added optional chaining
+//     router.replace("/(drawer)/(inside)/");
+//   } catch (err) {
+//     console.error("Login error:", err);
+//     setError(err.message || "Login failed.");
+//   } finally {
+//     setLoading(false);
+//   }
+// };
 
 
-  //   } catch (err) {
-  //     if (axios.isAxiosError(err)) {
-  //       console.error("Axios Error:", err.response?.data || err.message);
-  //       setError(err.response?.data?.message || "Login failed due to a server error.");
-  //     } else if (err instanceof Error) {
-  //       console.error("Error:", err.message);
-  //       setError(err.message || "Something went wrong. Try again!");
-  //     } else {
-  //       console.error("Unknown Error:", err);
-  //       setError("An unexpected error occurred.");
-  //     }
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
+  const handleLogin = async () => {
+    if (!form.email || !form.password) {
+      setError("All fields are required!");
+      console.error("Validation Error: Missing fields.");
+      return;
+    }
+
+    setLoading(true);
+    setError("");
+
+    try {
+      const { data } = await axios.post(
+        "http://172.20.80.1:5000/api/auth/login",
+        // "http://172.18.240.1:5000/api/auth/login",
+        // "http://52.14.158.219:5000/api/auth/login",
+        { email: form.email, password: form.password },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+        }
+      );
+
+      console.log("Server Response:", data);
+
+      if (!data.success) {
+        setError(data.message || "Login failed!");
+        return;
+      }
+
+      await SecureStore.setItemAsync("userToken", String(data.token));
+      await SecureStore.setItemAsync("userData", JSON.stringify(data.user));
+
+      console.log("User logged in successfully:", data.user);
+      // router.replace("/(drawer)/(inside)/index");
+
+      console.log("Redirecting to:", "/(drawer)/(inside)/index");
+      router.replace("/(drawer)/(inside)/");
+
+
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        console.error("Axios Error:", err.response?.data || err.message);
+        setError(err.response?.data?.message || "Login failed due to a server error.");
+      } else if (err instanceof Error) {
+        console.error("Error:", err.message);
+        setError(err.message || "Something went wrong. Try again!");
+      } else {
+        console.error("Unknown Error:", err);
+        setError("An unexpected error occurred.");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <View style={styles.container}>
