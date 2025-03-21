@@ -37,7 +37,7 @@ const CustomDrawerContent = (props) => {
             label="Home"
             labelStyle={pathname === "/home" ? styles.activeNavItemLabel : styles.inactiveNavItemLabel}
             style={pathname === "/home" ? styles.activeNavItem : styles.inactiveNavItem}
-            onPress={() => router.push("/(inside)/index")}
+            onPress={() => router.push("/(inside)")}
           />
         </View>
 
@@ -47,7 +47,7 @@ const CustomDrawerContent = (props) => {
             label="Profile"
             labelStyle={pathname === "/profileScreen" ? styles.activeNavItemLabel : styles.inactiveNavItemLabel}
             style={pathname === "/profileScreen" ? styles.activeNavItem : styles.inactiveNavItem}
-            onPress={() => router.push("/(drawer)/(inside)/profileScreen")}
+            onPress={() => router.push("/(inside)/profileScreen")}
           />
         </View>
 

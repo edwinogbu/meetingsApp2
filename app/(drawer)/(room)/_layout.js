@@ -4,7 +4,7 @@ export default function RoomLayout() {
   return (
     // <Stack screenOptions={{ headerShown: false }}>
     <Stack>
-      <Stack.Screen name="[id]" options={{ title: 'Room Details' }} />
+      <Stack.Screen name="[id]" options={{ title: 'Room Live' }} />
     </Stack>
   );
 }

@@ -12,57 +12,57 @@
 //     );
 // }
 
-import { View, StyleSheet, Dimensions } from 'react-native'; 
-import React, { useEffect, useState } from 'react';
-import { useLocalSearchParams } from 'expo-router';
+// import { View, StyleSheet, Dimensions } from 'react-native'; 
+// import React, { useEffect, useState } from 'react';
+// import { useLocalSearchParams } from 'expo-router';
 
-import Spinner from 'react-native-loading-spinner-overlay';
-import {
-  Call,
-  CallContent,
-  StreamCall,
-  useStreamVideoClient
-} from '@stream-io/video-react-native-sdk';
+// import Spinner from 'react-native-loading-spinner-overlay';
+// import {
+//   Call,
+//   CallContent,
+//   StreamCall,
+//   useStreamVideoClient
+// } from '@stream-io/video-react-native-sdk';
 
-const WIDTH = Dimensions.get('window').width;
-const HEIGHT = Dimensions.get('window').height;
+// const WIDTH = Dimensions.get('window').width;
+// const HEIGHT = Dimensions.get('window').height;
 
-const Page = () => {
-  const [call, setCall] = useState<Call | null>(null);
-  const client = useStreamVideoClient();
-  const { id } = useLocalSearchParams<{ id: string }>();
+// const Page = () => {
+//   const [call, setCall] = useState<Call | null>(null);
+//   const client = useStreamVideoClient();
+//   const { id } = useLocalSearchParams<{ id: string }>();
 
-  console.log("Client:", client);
-  console.log("Call ID:", id);
+//   console.log("Client:", client);
+//   console.log("Call ID:", id);
 
-  useEffect(() => {
-    if (!client || !id || call) return;
+//   useEffect(() => {
+//     if (!client || !id || call) return;
 
-    const joinCall = async () => {
-      try {
-        const callInstance = client.call('default', id);
-        await callInstance.join({ create: true });
-        setCall(callInstance);
-      } catch (error) {
-        console.error("Failed to join call:", error);
-      }
-    };
+//     const joinCall = async () => {
+//       try {
+//         const callInstance = client.call('default', id);
+//         await callInstance.join({ create: true });
+//         setCall(callInstance);
+//       } catch (error) {
+//         console.error("Failed to join call:", error);
+//       }
+//     };
 
-    joinCall();
-  }, [client, id]);
+//     joinCall();
+//   }, [client, id]);
 
-  if (!call) return <Spinner visible={true} />; // Show spinner if call is not yet joined
+//   if (!call) return <Spinner visible={true} />; // Show spinner if call is not yet joined
 
-  return (
-    <View style={{ flex: 1 }}>
-      <StreamCall call={call}>
-        <CallContent />
-      </StreamCall>
-    </View>
-  );
-};
+//   return (
+//     <View style={{ flex: 1 }}>
+//       <StreamCall call={call}>
+//         <CallContent />
+//       </StreamCall>
+//     </View>
+//   );
+// };
 
-export default Page;
+// export default Page;
 
 
 // import { View, StyleSheet, Dimensions, TouchableOpacity, Share, Text } from 'react-native'; 
@@ -1054,3 +1054,155 @@ export default Page;
 //     fontWeight: 'bold',
 //   },
 // });
+
+
+import { View, StyleSheet, Dimensions, TouchableOpacity, Share, Text } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
+import Spinner from 'react-native-loading-spinner-overlay';
+import {
+	Call,
+	CallContent,
+	StreamCall,
+	StreamVideoEvent,
+	useStreamVideoClient
+} from '@stream-io/video-react-native-sdk';
+import Toast from 'react-native-toast-message';
+import { Ionicons } from '@expo/vector-icons';
+
+const WIDTH = Dimensions.get('window').width;
+const HEIGHT = Dimensions.get('window').height;
+
+const Page = () => {
+	const { id } = useLocalSearchParams<{ id: string }>();
+	const router = useRouter();
+	const navigation = useNavigation();
+	const [call, setCall] = useState<Call | null>(null);
+	const client = useStreamVideoClient();
+
+	console.log('Component rendered. Current Call:', call);
+	console.log('Client instance:', client);
+
+	// Join the call
+	useEffect(() => {
+		if (!client) {
+			console.log('Client is not ready yet.');
+			return;
+		}
+		if (call) {
+			console.log('Call already joined. Skipping...');
+			return;
+		}
+
+		const joinCall = async () => {
+			try {
+				console.log(`Attempting to join call with ID: ${id}`);
+				const newCall = client.call('default', id);
+				await newCall.join({ create: true });
+				setCall(newCall);
+				console.log('Successfully joined call:', newCall);
+			} catch (error) {
+				console.error('Error joining call:', error);
+			}
+		};
+
+		joinCall();
+	}, [client, call, id]);
+
+	// Event listener for call updates
+	useEffect(() => {
+		if (!client) {
+			console.log('Client not ready for event listener.');
+			return;
+		}
+
+		const unsubscribe = client.on('all', (event: StreamVideoEvent) => {
+			console.log('Event received:', event);
+
+			if (event.type === 'call.session_participant_joined') {
+				console.log(`User joined the call: ${event.participant}`);
+				const user = event.participant?.user?.name || 'Unknown User';
+				Toast.show({
+					text1: 'User joined',
+					text2: `Say hello to ${user} 👋`
+				});
+			}
+
+			if (event.type === 'call.session_participant_left') {
+				console.log(`User left the call: ${event.participant}`);
+				const user = event.participant?.user?.name || 'Unknown User';
+				Toast.show({
+					text1: 'User left',
+					text2: `Say goodbye to ${user} 👋`
+				});
+			}
+		});
+
+		console.log('Event listener attached.');
+
+		// Cleanup event listener
+		return () => {
+			console.log('Removing event listener.');
+			unsubscribe?.();
+		};
+	}, [client]);
+
+	// Navigate back home on hangup
+	const goToHomeScreen = async () => {
+		console.log('Navigating back to home screen.');
+		router.back();
+	};
+
+	// Share the meeting link
+	const shareMeeting = async () => {
+		const shareMessage = `Join my meeting: myapp://(inside)/(room)/${id}`;
+		console.log('Sharing meeting link:', shareMessage);
+		await Share.share({
+			message: shareMessage
+		});
+	};
+
+	if (!call) {
+		console.log('Call is not ready yet. Showing spinner.');
+		return <Spinner visible />;
+	}
+
+	return (
+		<View style={{ flex: 1 }}>
+			<StreamCall call={call}>
+				<View style={styles.container}>
+					<CallContent onHangupCallHandler={goToHomeScreen} layout="grid" />
+
+					{WIDTH > HEIGHT ? (
+						<View style={styles.videoContainer}>
+							<Text>Tablet chat</Text>
+						</View>
+					) : (
+						<Text>Mobile chat</Text>
+					)}
+				</View>
+			</StreamCall>
+		</View>
+	);
+};
+
+const styles = StyleSheet.create({
+	container: {
+		flex: 1,
+		flexDirection: WIDTH > HEIGHT ? 'row' : 'column'
+	},
+	videoContainer: {
+		flex: 1,
+		justifyContent: 'center',
+		textAlign: 'center',
+		backgroundColor: '#fff'
+	},
+	topView: {
+		flex: 1,
+		justifyContent: 'center',
+		alignItems: 'center',
+		backgroundColor: '#fff'
+	}
+});
+
+export default Page;

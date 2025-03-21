@@ -36,6 +36,7 @@
       [
         "@config-plugins/react-native-webrtc",
         {
+       
           "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera",
           "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone"
         }
@@ -44,9 +45,7 @@
         "expo-build-properties",
         {
           "android": {
-            "extraMavenRepos": [
-              "$rootDir/../../../node_modules/@notifee/react-native/android/libs"
-            ]
+            "extraMavenRepos": ["$rootDir/../../../node_modules/@notifee/react-native/android/libs"]
           }
         }
       ]
@@ -54,6 +53,12 @@
     "experiments": {
       "typedRoutes": true
     },
-    "extra": {}
+    "extra": {
+      "STREAM_ACCESS_KEY": "yyd329pv97zh",
+      "STREAM_KEY": "yyd329pv97zh",
+      "router": {
+        "origin": false
+      }
+    }
   }
 }

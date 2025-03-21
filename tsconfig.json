@@ -3,16 +3,21 @@
   "compilerOptions": {
     "strict": false,
     "skipLibCheck": true,
+    "allowJs": true,  // ✅ Allow JavaScript files
+    "checkJs": false, // ✅ Skip type checking for JS files
     "paths": {
-      "@/*": [
-        "./*"
-      ]
+      "@/*": ["./*"]
     }
   },
   "include": [
     "**/*.ts",
     "**/*.tsx",
+    "**/*.js", // ✅ Include JavaScript files
+    "**/*.jsx", // ✅ Include JSX files
     ".expo/types/**/*.ts",
-    "expo-env.d.ts"
-, "app/(drawer)/_layout.js", "app/(room)/_layout.js", "app/_layout.js"  ]
+    "expo-env.d.ts",
+    "app/(drawer)/_layout.js",
+    "app/(drawer)/(room)/_layout.js",
+    "app/_layout.tsx"
+  ]
 }
