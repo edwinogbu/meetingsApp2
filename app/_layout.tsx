@@ -1,3 +1,60 @@
+import 'react-native-gesture-handler';
+import React, { useEffect } from 'react';
+import { Slot, Stack, useRouter, useSegments } from 'expo-router';
+import { AuthProvider, useAuth } from '../context/AuthContext';  
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import Toast from 'react-native-toast-message';
+
+const InitialLayout: React.FC = (): JSX.Element => {
+    const { authState, initialized } = useAuth();
+    const segments = useSegments();
+    const router = useRouter();
+
+    useEffect(() => {
+        if (!initialized) return;
+
+        const currentSegment = segments.length > 0 ? segments[0] : '';
+        const inAuthGroup = ['(drawer)', '(inside)'].includes(currentSegment);
+
+        if (authState?.authenticated) {
+            if (!inAuthGroup) {
+                router.replace('/(drawer)/(inside)');
+            }
+        } else {
+            router.replace('/signInScreen');
+        }
+    }, [initialized, authState]);
+
+    return (
+        <GestureHandlerRootView style={{ flex: 1 }}>
+            {authState?.authenticated ? (
+                <Slot />  
+            ) : (
+                <Stack>
+                    <Stack.Screen name="index" options={{ headerShown: false }} />
+                    <Stack.Screen name="signInScreen" options={{ title: 'Sign In' }} />
+                    <Stack.Screen name="signUpScreen" options={{ title: 'Sign Up' }} />
+                    <Stack.Screen name="verificationScreen" options={{ title: 'Verify Account' }} />
+                </Stack>
+            )}
+            <Toast />
+        </GestureHandlerRootView>
+    );
+};
+
+const RootLayout: React.FC = (): JSX.Element => {
+    return (
+        <AuthProvider>  
+            <InitialLayout />
+        </AuthProvider>
+    );
+};
+
+export default RootLayout;
+
+
+
+
 // import FontAwesome from "@expo/vector-icons/FontAwesome";
 // import { DarkTheme, DefaultTheme, ThemeProvider } from "@react-navigation/native";
 // import { Stack } from "expo-router";
@@ -379,107 +436,116 @@
 // }
 
 
-import 'react-native-gesture-handler';
-import React, { useEffect, useState } from 'react';
-import { Slot, Stack, useRouter, useSegments } from 'expo-router';
-import { StreamVideo, StreamVideoClient } from '@stream-io/video-react-native-sdk';
-import { AuthProvider, useAuth } from '../context/AuthContext';  // ✅ Ensure correct import
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { OverlayProvider } from 'stream-chat-expo';
-import Toast from 'react-native-toast-message';
-import type { User } from '@stream-io/video-react-native-sdk';
-import Constants from 'expo-constants';
+//THESE WAS THE AUTH CONTEXT USED AND WORKING
+// import 'react-native-gesture-handler';
+// import React, { useEffect, useState } from 'react';
+// import { Slot, Stack, useRouter, useSegments } from 'expo-router';
+// import { StreamVideo, StreamVideoClient } from '@stream-io/video-react-native-sdk';
+// import { AuthProvider, useAuth } from '../context/AuthContext';  
+// import { GestureHandlerRootView } from 'react-native-gesture-handler';
+// import { OverlayProvider } from 'stream-chat-expo';
+// import Toast from 'react-native-toast-message';
+// import type { User } from '@stream-io/video-react-native-sdk';
+// import Constants from 'expo-constants';
 
-// const STREAM_KEY = Constants.expoConfig?.extra?.STREAM_KEY;
-const STREAM_KEY = Constants.expoConfig?.extra?.STREAM_ACCESS_KEY;
+// // Ensure STREAM_KEY is defined
+// const STREAM_KEY: string | undefined = Constants.expoConfig?.extra?.STREAM_ACCESS_KEY;
 
-const InitialLayout: React.FC = (): JSX.Element => {  // ✅ Explicit return type
-	const { authState, initialized } = useAuth();
-	const [client, setClient] = useState<StreamVideoClient | null>(null);
-	const segments = useSegments();
-	const router = useRouter();
+// const InitialLayout: React.FC = (): JSX.Element => {
+//     const { authState, initialized } = useAuth();
+//     const [client, setClient] = useState<StreamVideoClient | null>(null);
+//     const segments = useSegments();
+//     const router = useRouter();
 
-	useEffect(() => {
-		if (!initialized) return;
+//     useEffect(() => {
+//         if (!initialized) return;
 
-		const currentSegment = segments.length > 0 ? segments[0] : '';
-		const inAuthGroup = currentSegment === '(drawer)' || currentSegment === '(inside)';
-		const inRoom = currentSegment === 'room';
+//         // Ensure segments is an array and has valid data
+//         const currentSegment = segments.length > 0 ? segments[0] : '';
+//         const inAuthGroup = ['(drawer)', '(inside)'].includes(currentSegment);
+//         const inRoom = currentSegment === 'room';
 
-		if (authState?.authenticated) {
-			if (!inAuthGroup && !inRoom) {
-				router.replace('/(drawer)/(inside)');
-			}
-		} else {
-			if (client) {
-				client.disconnectUser().catch(err => console.error('Error disconnecting:', err));
-			}
-			router.replace('/');
-		}
-	}, [initialized, authState, client]);
+//         if (authState?.authenticated) {
+//             if (!inAuthGroup && !inRoom) {
+//                 router.replace('/(drawer)/(inside)');
+//             }
+//         } else {
+//             if (client) {
+//                 client.disconnectUser().catch(err => console.error('Error disconnecting:', err));
+//             }
+//             router.replace('/');
+//         }
+//     }, [initialized, authState, client]);
 
-	useEffect(() => {
-		if (!STREAM_KEY) {
-			console.error('STREAM_KEY is missing! Check environment variables.');
-			return;
-		}
+//     useEffect(() => {
+//         if (!STREAM_KEY) {
+//             console.error('STREAM_KEY is missing! Check environment variables.');
+//             return;
+//         }
 
-		if (authState?.authenticated && authState.chatToken && typeof authState.user_id === 'string' && authState.user_id.trim() !== '') {
-			const user: User = { id: authState.user_id.trim() };
+//         if (
+//             authState?.authenticated &&
+//             authState.chatToken &&
+//             typeof authState.user_id === 'string' &&
+//             authState.user_id.trim() !== ''
+//         ) {
+//             const user: User = { id: authState.user_id.trim() };
 
-			try {
-				const streamClient = new StreamVideoClient({
-					apiKey: STREAM_KEY,
-					user,
-					token: authState.chatToken,
-				});
-				setClient(streamClient);
-			} catch (e) {
-				console.error('Error creating StreamVideoClient:', e);
-			}
-		} else {
-			setClient(null);
-		}
-	}, [authState]);
+//             try {
+//                 const streamClient = new StreamVideoClient({
+//                     apiKey: STREAM_KEY,
+//                     user,
+//                     token: authState.chatToken,
+//                 });
+//                 setClient(streamClient);
+//             } catch (e) {
+//                 console.error('Error creating StreamVideoClient:', e);
+//             }
+//         } else {
+//             setClient(null);
+//         }
+//     }, [authState]);
 
-	useEffect(() => {
-		return () => {
-			if (client) {
-				client.disconnectUser().catch(err => console.error('Error disconnecting client:', err));
-			}
-		};
-	}, [client]);
+//     useEffect(() => {
+//         return () => {
+//             if (client) {
+//                 client.disconnectUser().catch(err => console.error('Error disconnecting client:', err));
+//             }
+//         };
+//     }, [client]);
 
-	return (
-		<GestureHandlerRootView style={{ flex: 1 }}>
-			{client ? (
-				<StreamVideo client={client}>
-					<OverlayProvider>
-						<Slot />
-						<Toast />
-					</OverlayProvider>
-				</StreamVideo>
-			) : (
-				<Stack>
-					<Stack.Screen name="index" options={{ headerShown: false }} />
-					<Stack.Screen name="signInScreen" options={{ title: "Sign In" }} />
-					<Stack.Screen name="signUpScreen" options={{ title: "Sign Up" }} />
-					<Stack.Screen name="verificationScreen" options={{ title: "Verify Account" }} />
-				</Stack>
-			)}
-		</GestureHandlerRootView>
-	);
-};
+//     return (
+//         <GestureHandlerRootView style={{ flex: 1 }}>
+//             {client ? (
+//                 <StreamVideo client={client}>
+//                     <OverlayProvider>
+//                         <Slot />
+//                         <Toast />
+//                     </OverlayProvider>
+//                 </StreamVideo>
+//             ) : (
+//                 <Stack>
+//                     <Stack.Screen name="index" options={{ headerShown: false }} />
+//                     <Stack.Screen name="signInScreen" options={{ title: 'Sign In' }} />
+//                     <Stack.Screen name="signUpScreen" options={{ title: 'Sign Up' }} />
+//                     <Stack.Screen name="verificationScreen" options={{ title: 'Verify Account' }} />
+//                 </Stack>
+//             )}
+//         </GestureHandlerRootView>
+//     );
+// };
 
-const RootLayout: React.FC = (): JSX.Element => {
-	return (
-		<AuthProvider>  
-			<InitialLayout />
-		</AuthProvider>
-	);
-};
+// const RootLayout: React.FC = (): JSX.Element => {
+//     return (
+//         <AuthProvider>  
+//             <InitialLayout />
+//         </AuthProvider>
+//     );
+// };
 
-export default RootLayout;
+// export default RootLayout;
+
+
 
 
 // import 'react-native-gesture-handler';

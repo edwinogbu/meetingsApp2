@@ -2,22 +2,24 @@
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
     "strict": false,
+    "noImplicitAny": false,
     "skipLibCheck": true,
-    "allowJs": true,  // ✅ Allow JavaScript files
-    "checkJs": false, // ✅ Skip type checking for JS files
-    "paths": {
-      "@/*": ["./*"]
-    }
+    "allowJs": true,
+    "checkJs": false,
+    "noEmit": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noImplicitReturns": false,
+    "noFallthroughCasesInSwitch": false
   },
   "include": [
-    "**/*.ts",
-    "**/*.tsx",
-    "**/*.js", // ✅ Include JavaScript files
-    "**/*.jsx", // ✅ Include JSX files
+    "**/*",
     ".expo/types/**/*.ts",
-    "expo-env.d.ts",
-    "app/(drawer)/_layout.js",
-    "app/(drawer)/(room)/_layout.js",
-    "app/_layout.tsx"
+    "expo-env.d.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "babel.config.js",
+    "metro.config.js"
   ]
 }

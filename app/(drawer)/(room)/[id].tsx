@@ -1,3 +1,215 @@
+import React, { useEffect, useRef, useState } from 'react';
+import { View, TouchableOpacity, StyleSheet, Alert, Text, Dimensions } from 'react-native';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { MaterialIcons, FontAwesome5 } from '@expo/vector-icons';
+import io from 'socket.io-client';
+import { RTCPeerConnection, RTCView, mediaDevices } from 'react-native-webrtc';
+
+// Get device screen dimensions
+const WIDTH = Dimensions.get('window').width;
+const HEIGHT = Dimensions.get('window').height;
+
+// Define color palette
+const COLORS = {
+  primary: '#6D00B3',
+  secondary: '#6C00B1',
+  white: '#FFFFFF',
+  darkGray: '#222222',
+  buttonBackground: '#4B0082',
+  endCall: '#FF3B30',
+};
+
+// Replace with your actual server URL
+const SOCKET_SERVER_URL = 'http://your-server-ip:3001';
+const ICE_SERVERS = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
+
+export default function VideoCall() {
+  const { id: roomId } = useLocalSearchParams();
+  const router = useRouter();
+  const [localStream, setLocalStream] = useState(null);
+  const [remoteStream, setRemoteStream] = useState(null);
+  const [isMuted, setIsMuted] = useState(false);
+  const [isCameraOn, setIsCameraOn] = useState(true);
+  const socketRef = useRef();
+  const peerConnectionRef = useRef(new RTCPeerConnection(ICE_SERVERS));
+
+  useEffect(() => {
+    socketRef.current = io(SOCKET_SERVER_URL);
+
+    const startLocalStream = async () => {
+      try {
+        const stream = await mediaDevices.getUserMedia({ video: true, audio: true });
+        setLocalStream(stream);
+        peerConnectionRef.current.addStream(stream);
+      } catch (error) {
+        Alert.alert('Error', 'Failed to access camera and microphone');
+        console.error('Error accessing media devices:', error);
+      }
+    };
+
+    startLocalStream();
+    socketRef.current.emit('join-room', roomId);
+
+    socketRef.current.on('user-joined', async (userId) => {
+      console.log('User joined:', userId);
+      const offer = await peerConnectionRef.current.createOffer();
+      await peerConnectionRef.current.setLocalDescription(offer);
+      socketRef.current.emit('offer', { to: userId, offer, roomId });
+    });
+
+    socketRef.current.on('offer', async ({ offer, from }) => {
+      await peerConnectionRef.current.setRemoteDescription(new RTCSessionDescription(offer));
+      const answer = await peerConnectionRef.current.createAnswer();
+      await peerConnectionRef.current.setLocalDescription(answer);
+      socketRef.current.emit('answer', { to: from, answer, roomId });
+    });
+
+    socketRef.current.on('answer', async ({ answer }) => {
+      await peerConnectionRef.current.setRemoteDescription(new RTCSessionDescription(answer));
+    });
+
+    socketRef.current.on('ice-candidate', async ({ candidate }) => {
+      if (candidate) {
+        await peerConnectionRef.current.addIceCandidate(new RTCIceCandidate(candidate));
+      }
+    });
+
+    peerConnectionRef.current.onicecandidate = (event) => {
+      if (event.candidate) {
+        socketRef.current.emit('ice-candidate', { candidate: event.candidate, roomId });
+      }
+    };
+
+    peerConnectionRef.current.onaddstream = (event) => {
+      setRemoteStream(event.stream);
+    };
+
+    socketRef.current.on('user-left', () => {
+      setRemoteStream(null);
+      peerConnectionRef.current.close();
+      peerConnectionRef.current = new RTCPeerConnection(ICE_SERVERS);
+    });
+
+    return () => {
+      endCall();
+    };
+  }, []);
+
+  const toggleMute = () => {
+    if (localStream) {
+      localStream.getAudioTracks().forEach((track) => {
+        track.enabled = !track.enabled;
+      });
+      setIsMuted(!isMuted);
+    }
+  };
+
+  const toggleCamera = () => {
+    if (localStream) {
+      localStream.getVideoTracks().forEach((track) => {
+        track.enabled = !track.enabled;
+      });
+      setIsCameraOn(!isCameraOn);
+    }
+  };
+
+  const endCall = () => {
+    if (localStream) {
+      localStream.getTracks().forEach((track) => track.stop());
+    }
+    peerConnectionRef.current.close();
+    socketRef.current.emit('leave-room', roomId);
+    socketRef.current.disconnect();
+    router.push('/');
+  };
+
+  return (
+    <View style={styles.container}>
+      {remoteStream ? (
+        <RTCView streamURL={remoteStream.toURL()} style={styles.remoteVideo} />
+      ) : (
+        <View style={styles.placeholder}>
+          <Text style={styles.waitingText}>Waiting for participant...</Text>
+        </View>
+      )}
+
+      {localStream && <RTCView streamURL={localStream.toURL()} style={styles.localVideo} />}
+
+      {/* Floating Controls */}
+      <View style={styles.controls}>
+        <TouchableOpacity style={styles.controlButton} onPress={toggleMute}>
+          <MaterialIcons name={isMuted ? 'mic-off' : 'mic'} size={30} color={COLORS.white} />
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.controlButton} onPress={toggleCamera}>
+          <MaterialIcons name={isCameraOn ? 'videocam' : 'videocam-off'} size={30} color={COLORS.white} />
+        </TouchableOpacity>
+
+        <TouchableOpacity style={[styles.controlButton, styles.endCallButton]} onPress={endCall}>
+          <FontAwesome5 name="phone-slash" size={24} color={COLORS.white} />
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: COLORS.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  remoteVideo: {
+    width: WIDTH,
+    height: HEIGHT,
+  },
+  localVideo: {
+    width: WIDTH * 0.3,
+    height: HEIGHT * 0.2,
+    position: 'absolute',
+    bottom: HEIGHT * 0.15,
+    right: WIDTH * 0.05,
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: COLORS.white,
+  },
+  placeholder: {
+    width: WIDTH,
+    height: HEIGHT,
+    backgroundColor: COLORS.darkGray,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  waitingText: {
+    color: COLORS.white,
+    fontSize: 18,
+    fontWeight: '600',
+  },
+  controls: {
+    position: 'absolute',
+    bottom: HEIGHT * 0.05,
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    width: WIDTH * 0.8,
+  },
+  controlButton: {
+    width: 65,
+    height: 65,
+    borderRadius: 35,
+    backgroundColor: COLORS.buttonBackground,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  endCallButton: {
+    backgroundColor: COLORS.endCall,
+  },
+});
+
+
+
+
+
 // import { View, Text } from 'react-native';
 // import { useLocalSearchParams } from 'expo-router';
 // import React from 'react';
@@ -1056,153 +1268,153 @@
 // });
 
 
-import { View, StyleSheet, Dimensions, TouchableOpacity, Share, Text } from 'react-native';
-import React, { useEffect, useState } from 'react';
-import { useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
-import Spinner from 'react-native-loading-spinner-overlay';
-import {
-	Call,
-	CallContent,
-	StreamCall,
-	StreamVideoEvent,
-	useStreamVideoClient
-} from '@stream-io/video-react-native-sdk';
-import Toast from 'react-native-toast-message';
-import { Ionicons } from '@expo/vector-icons';
+// import { View, StyleSheet, Dimensions, TouchableOpacity, Share, Text } from 'react-native';
+// import React, { useEffect, useState } from 'react';
+// import { useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
+// import Spinner from 'react-native-loading-spinner-overlay';
+// import {
+// 	Call,
+// 	CallContent,
+// 	StreamCall,
+// 	StreamVideoEvent,
+// 	useStreamVideoClient
+// } from '@stream-io/video-react-native-sdk';
+// import Toast from 'react-native-toast-message';
+// import { Ionicons } from '@expo/vector-icons';
 
-const WIDTH = Dimensions.get('window').width;
-const HEIGHT = Dimensions.get('window').height;
+// const WIDTH = Dimensions.get('window').width;
+// const HEIGHT = Dimensions.get('window').height;
 
-const Page = () => {
-	const { id } = useLocalSearchParams<{ id: string }>();
-	const router = useRouter();
-	const navigation = useNavigation();
-	const [call, setCall] = useState<Call | null>(null);
-	const client = useStreamVideoClient();
+// const Page = () => {
+// 	const { id } = useLocalSearchParams<{ id: string }>();
+// 	const router = useRouter();
+// 	const navigation = useNavigation();
+// 	const [call, setCall] = useState<Call | null>(null);
+// 	const client = useStreamVideoClient();
 
-	console.log('Component rendered. Current Call:', call);
-	console.log('Client instance:', client);
+// 	console.log('Component rendered. Current Call:', call);
+// 	console.log('Client instance:', client);
 
-	// Join the call
-	useEffect(() => {
-		if (!client) {
-			console.log('Client is not ready yet.');
-			return;
-		}
-		if (call) {
-			console.log('Call already joined. Skipping...');
-			return;
-		}
+// 	// Join the call
+// 	useEffect(() => {
+// 		if (!client) {
+// 			console.log('Client is not ready yet.');
+// 			return;
+// 		}
+// 		if (call) {
+// 			console.log('Call already joined. Skipping...');
+// 			return;
+// 		}
 
-		const joinCall = async () => {
-			try {
-				console.log(`Attempting to join call with ID: ${id}`);
-				const newCall = client.call('default', id);
-				await newCall.join({ create: true });
-				setCall(newCall);
-				console.log('Successfully joined call:', newCall);
-			} catch (error) {
-				console.error('Error joining call:', error);
-			}
-		};
+// 		const joinCall = async () => {
+// 			try {
+// 				console.log(`Attempting to join call with ID: ${id}`);
+// 				const newCall = client.call('default', id);
+// 				await newCall.join({ create: true });
+// 				setCall(newCall);
+// 				console.log('Successfully joined call:', newCall);
+// 			} catch (error) {
+// 				console.error('Error joining call:', error);
+// 			}
+// 		};
 
-		joinCall();
-	}, [client, call, id]);
+// 		joinCall();
+// 	}, [client, call, id]);
 
-	// Event listener for call updates
-	useEffect(() => {
-		if (!client) {
-			console.log('Client not ready for event listener.');
-			return;
-		}
+// 	// Event listener for call updates
+// 	useEffect(() => {
+// 		if (!client) {
+// 			console.log('Client not ready for event listener.');
+// 			return;
+// 		}
 
-		const unsubscribe = client.on('all', (event: StreamVideoEvent) => {
-			console.log('Event received:', event);
+// 		const unsubscribe = client.on('all', (event: StreamVideoEvent) => {
+// 			console.log('Event received:', event);
 
-			if (event.type === 'call.session_participant_joined') {
-				console.log(`User joined the call: ${event.participant}`);
-				const user = event.participant?.user?.name || 'Unknown User';
-				Toast.show({
-					text1: 'User joined',
-					text2: `Say hello to ${user} 👋`
-				});
-			}
+// 			if (event.type === 'call.session_participant_joined') {
+// 				console.log(`User joined the call: ${event.participant}`);
+// 				const user = event.participant?.user?.name || 'Unknown User';
+// 				Toast.show({
+// 					text1: 'User joined',
+// 					text2: `Say hello to ${user} 👋`
+// 				});
+// 			}
 
-			if (event.type === 'call.session_participant_left') {
-				console.log(`User left the call: ${event.participant}`);
-				const user = event.participant?.user?.name || 'Unknown User';
-				Toast.show({
-					text1: 'User left',
-					text2: `Say goodbye to ${user} 👋`
-				});
-			}
-		});
+// 			if (event.type === 'call.session_participant_left') {
+// 				console.log(`User left the call: ${event.participant}`);
+// 				const user = event.participant?.user?.name || 'Unknown User';
+// 				Toast.show({
+// 					text1: 'User left',
+// 					text2: `Say goodbye to ${user} 👋`
+// 				});
+// 			}
+// 		});
 
-		console.log('Event listener attached.');
+// 		console.log('Event listener attached.');
 
-		// Cleanup event listener
-		return () => {
-			console.log('Removing event listener.');
-			unsubscribe?.();
-		};
-	}, [client]);
+// 		// Cleanup event listener
+// 		return () => {
+// 			console.log('Removing event listener.');
+// 			unsubscribe?.();
+// 		};
+// 	}, [client]);
 
-	// Navigate back home on hangup
-	const goToHomeScreen = async () => {
-		console.log('Navigating back to home screen.');
-		router.back();
-	};
+// 	// Navigate back home on hangup
+// 	const goToHomeScreen = async () => {
+// 		console.log('Navigating back to home screen.');
+// 		router.back();
+// 	};
 
-	// Share the meeting link
-	const shareMeeting = async () => {
-		const shareMessage = `Join my meeting: myapp://(inside)/(room)/${id}`;
-		console.log('Sharing meeting link:', shareMessage);
-		await Share.share({
-			message: shareMessage
-		});
-	};
+// 	// Share the meeting link
+// 	const shareMeeting = async () => {
+// 		const shareMessage = `Join my meeting: myapp://(inside)/(room)/${id}`;
+// 		console.log('Sharing meeting link:', shareMessage);
+// 		await Share.share({
+// 			message: shareMessage
+// 		});
+// 	};
 
-	if (!call) {
-		console.log('Call is not ready yet. Showing spinner.');
-		return <Spinner visible />;
-	}
+// 	if (!call) {
+// 		console.log('Call is not ready yet. Showing spinner.');
+// 		return <Spinner visible />;
+// 	}
 
-	return (
-		<View style={{ flex: 1 }}>
-			<StreamCall call={call}>
-				<View style={styles.container}>
-					<CallContent onHangupCallHandler={goToHomeScreen} layout="grid" />
+// 	return (
+// 		<View style={{ flex: 1 }}>
+// 			<StreamCall call={call}>
+// 				<View style={styles.container}>
+// 					<CallContent onHangupCallHandler={goToHomeScreen} layout="grid" />
 
-					{WIDTH > HEIGHT ? (
-						<View style={styles.videoContainer}>
-							<Text>Tablet chat</Text>
-						</View>
-					) : (
-						<Text>Mobile chat</Text>
-					)}
-				</View>
-			</StreamCall>
-		</View>
-	);
-};
+// 					{WIDTH > HEIGHT ? (
+// 						<View style={styles.videoContainer}>
+// 							<Text>Tablet chat</Text>
+// 						</View>
+// 					) : (
+// 						<Text>Mobile chat</Text>
+// 					)}
+// 				</View>
+// 			</StreamCall>
+// 		</View>
+// 	);
+// };
 
-const styles = StyleSheet.create({
-	container: {
-		flex: 1,
-		flexDirection: WIDTH > HEIGHT ? 'row' : 'column'
-	},
-	videoContainer: {
-		flex: 1,
-		justifyContent: 'center',
-		textAlign: 'center',
-		backgroundColor: '#fff'
-	},
-	topView: {
-		flex: 1,
-		justifyContent: 'center',
-		alignItems: 'center',
-		backgroundColor: '#fff'
-	}
-});
+// const styles = StyleSheet.create({
+// 	container: {
+// 		flex: 1,
+// 		flexDirection: WIDTH > HEIGHT ? 'row' : 'column'
+// 	},
+// 	videoContainer: {
+// 		flex: 1,
+// 		justifyContent: 'center',
+// 		textAlign: 'center',
+// 		backgroundColor: '#fff'
+// 	},
+// 	topView: {
+// 		flex: 1,
+// 		justifyContent: 'center',
+// 		alignItems: 'center',
+// 		backgroundColor: '#fff'
+// 	}
+// });
 
-export default Page;
+// export default Page;
